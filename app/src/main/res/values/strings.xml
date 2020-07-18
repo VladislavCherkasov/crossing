@@ -2,4 +2,6 @@
     <string name="app_name">Crossing</string>
     <string name="New_game_button">New game</string>
     <string name="Game_over_message">Game over</string>
+    <string name="You_lost_message">You\'ve lost!</string>
+    <string name="You_won_message">You\'ve won!</string>
 </resources>
