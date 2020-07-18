@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
   Button new_game_button;
     DisplayMetrics metrics ;
     int width ;
-    ArrayList<Integer> pressed_buttons_IDs = new ArrayList<>();
+
     ArrayList<Integer> user_pressed_buttons_IDs = new ArrayList<>();
     ArrayList<Integer> computer_pressed_buttons_IDs = new ArrayList<>();
     GradientDrawable gd = new GradientDrawable();
@@ -121,9 +121,10 @@ if(!user_pressed_buttons_IDs.contains(v.getId()) & !computer_pressed_buttons_IDs
 
     user_pressed_buttons_IDs.add(v.getId());
 }
-            Toast toast = Toast.makeText(MainActivity.this,String.valueOf(v.getId()),Toast.LENGTH_SHORT);
+        //    Toast toast = Toast.makeText(MainActivity.this,String.valueOf(v.getId()),Toast.LENGTH_SHORT);
 
-            toast.show();
+         //   toast.show();
+         if   (!checkIfGameOver())
             computerMove();
         }
 
@@ -200,8 +201,18 @@ if(!user_pressed_buttons_IDs.contains(v.getId()) & !computer_pressed_buttons_IDs
             break;
         }
     }
+      checkIfGameOver();
     }
 
+private boolean checkIfGameOver() {
+        if ((user_pressed_buttons_IDs.size()+computer_pressed_buttons_IDs.size())==49) {
+            Toast toast = Toast.makeText(MainActivity.this,R.string.Game_over_message,Toast.LENGTH_SHORT);
 
+            toast.show();
+            return true;
+
+        }
+        else return false;
+}
 
 }
