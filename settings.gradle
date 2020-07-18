@@ -1,0 +1,2 @@
+rootProject.name='Crossing'
+include ':app'
