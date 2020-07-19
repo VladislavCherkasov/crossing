@@ -4,11 +4,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.pm.ActivityInfo;
-import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.DisplayMetrics;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
@@ -19,20 +19,28 @@ import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    GridLayout GameLayout;
 
-  Button button;
-  Button new_game_button;
-   ArrayList<Button> game_field_buttons=new ArrayList<>();
-    DisplayMetrics metrics ;
-    int width ;
-    char [][] game_table = new char[7][7];
-    boolean game_won=false;
+    private static final String TAG = "MainActivity";
+    private static final String GAME_TABLE_INDEX = "game_table_index";
+    private static final String GAME_WON_INDEX = "game_won_index";
+    private static final String USER_PRESSED_BUTTONS_IDS_INDEX = "user_pressed_buttons_IDs_index";
+    private static final String COMPUTER_PRESSED_BUTTONS_IDS_INDEX = "computer_pressed_buttons_IDs_index";
 
 
+   private GridLayout GameLayout;
 
-    ArrayList<Integer> user_pressed_buttons_IDs = new ArrayList<>();
-    ArrayList<Integer> computer_pressed_buttons_IDs = new ArrayList<>();
+ private Button button;
+ private Button new_game_button;
+  private ArrayList<Button> game_field_buttons;
+ private    DisplayMetrics metrics ;
+  private   int width ;
+   private char [][] game_table;
+ private boolean game_won;
+
+
+
+    ArrayList<Integer> user_pressed_buttons_IDs;
+    ArrayList<Integer> computer_pressed_buttons_IDs;
     GradientDrawable gd = new GradientDrawable();
     GradientDrawable gd_pressed = new GradientDrawable();
     GradientDrawable gd_computer_move = new GradientDrawable();
@@ -42,6 +50,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
        setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
+        game_won=false;
+        game_table = new char[7][7];
+        user_pressed_buttons_IDs = new ArrayList<>();
+        computer_pressed_buttons_IDs = new ArrayList<>();
+        game_field_buttons=new ArrayList<>();
+
+        if (savedInstanceState != null) {
+            game_table = (char[][]) savedInstanceState.getSerializable(GAME_TABLE_INDEX);
+            game_won = savedInstanceState.getBoolean(GAME_WON_INDEX);
+            user_pressed_buttons_IDs = savedInstanceState.getIntegerArrayList(USER_PRESSED_BUTTONS_IDS_INDEX);
+            computer_pressed_buttons_IDs = savedInstanceState.getIntegerArrayList(COMPUTER_PRESSED_BUTTONS_IDS_INDEX);
+        }
+
 
          metrics = this.getResources().getDisplayMetrics();
          width = metrics.widthPixels;
@@ -77,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
             button.setTextSize(width/35);
+         //   button.setText(String.valueOf(new Integer(i)));
 
           //  button.setWidth(30);
 
@@ -124,8 +146,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         public void onClick(View v) {
+
+       // if (v==new_game_button) start_Again();
       //  game_won=false;
-if(!user_pressed_buttons_IDs.contains(v.getId()) & !computer_pressed_buttons_IDs.contains(v.getId())) {
+if(!user_pressed_buttons_IDs.contains(v.getId()) & !computer_pressed_buttons_IDs.contains(v.getId()) & !game_won) {
     ((Button) v).setText("X");
     gd_pressed.setColor(getResources().getColor(R.color.dark_red));
 
@@ -139,9 +163,11 @@ if(!user_pressed_buttons_IDs.contains(v.getId()) & !computer_pressed_buttons_IDs
           //  Toast toast = Toast.makeText(MainActivity.this,String.valueOf(a),Toast.LENGTH_SHORT);
          //   toast.show();
 
-     game_won =win_Test(game_table,'X');
+     game_won = GameLogic.winTest(game_table,'X');
             if (game_won) {
-                Toast.makeText(MainActivity.this, R.string.You_won_message, Toast.LENGTH_SHORT).show();
+               Toast toast = Toast.makeText(MainActivity.this, R.string.You_won_message, Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
 for (Button b: game_field_buttons) {
    // b.setBackgroundColor(Color.YELLOW);
     b.setEnabled(false);
@@ -155,18 +181,32 @@ for (Button b: game_field_buttons) {
         }
 
 
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        Log.i(TAG, "onSaveInstanceState");
+        savedInstanceState.putSerializable(GAME_TABLE_INDEX, game_table);
+        savedInstanceState.putBoolean(GAME_WON_INDEX,game_won);
+        savedInstanceState.putIntegerArrayList(USER_PRESSED_BUTTONS_IDS_INDEX,user_pressed_buttons_IDs);
+        savedInstanceState.putIntegerArrayList(COMPUTER_PRESSED_BUTTONS_IDS_INDEX,computer_pressed_buttons_IDs);
+
+
+    }
+
+
 
     private void start_Again() {
 
-        setContentView(R.layout.activity_main);
+
 
         game_won=false;
         user_pressed_buttons_IDs.clear();
         computer_pressed_buttons_IDs.clear();
+
         for (int i=0;i<7;i++)
             for (int j=0;j<7;j++) game_table[i][j]='1'; //инициализация игровой таблицы
 
-
+        setContentView(R.layout.activity_main);
 
         metrics = this.getResources().getDisplayMetrics();
         width = metrics.widthPixels;
@@ -183,7 +223,7 @@ for (Button b: game_field_buttons) {
             button = new Button(this);
 
             button.setTextSize(width/35);
-
+        //    button.setText(String.valueOf(new Integer(i)));
 
             button.setPadding(0,0,0,0);
 
@@ -213,6 +253,8 @@ for (Button b: game_field_buttons) {
 
 
         new_game_button = findViewById(R.id.new_game_button);
+
+
         new_game_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -227,7 +269,7 @@ for (Button b: game_field_buttons) {
     }
 
     private void computerMove() {
-        Button button=null;
+        Button button;
       while (true) {
         int i = (int) (49 * Math.random());
         if (!user_pressed_buttons_IDs.contains(i) & !computer_pressed_buttons_IDs.contains(i)) {
@@ -239,12 +281,12 @@ for (Button b: game_field_buttons) {
 
                 gd_computer_move.setStroke(1, 0xFF000000);
                 button.setBackground(gd_computer_move);
-                game_table[((int)button.getId()/7)][((int)button.getId()%7)]='O'; // заполнение игровой таблицы
+                game_table[i/7][i%7]='O'; // заполнение игровой таблицы
             }
             break;
         }
     }
-      if (win_Test(game_table,'O')) Toast.makeText(MainActivity.this,R.string.You_lost_message,Toast.LENGTH_SHORT).show();
+      if (GameLogic.winTest(game_table,'O')) Toast.makeText(MainActivity.this,R.string.You_lost_message,Toast.LENGTH_SHORT).show();
       checkIfGameOver();
     }
 
@@ -259,186 +301,7 @@ private boolean checkIfGameOver() {
         else return false;
 }
 
-    private boolean win_Test (char [][] game_table, char sign){
 
-         boolean win=false;
-
-
-
-         //создание копии матрицы для последующего поворота
-
-         char [][] game_table_to_turn = new char [7][7];
-
-
-         for (int i=0;i<7;i++){
-             for (int j=0;j<7;j++)
-             {
-
-                 game_table_to_turn[i][j]=game_table[i][j];
-             }
-         }
-// конец создания копии
-
-
-         //поворот матрицы
-
-
-         char[][] game_table_turned = new char[game_table_to_turn[0].length][game_table_to_turn.length];
-         for (int i = 0; i < game_table_to_turn.length; i++) {
-             for (int j = 0; j < game_table_to_turn[i].length; j++) {
-                 game_table_turned[j][game_table_to_turn.length - i - 1] = game_table_to_turn[i][j];
-             }
-         }
-
-         //конец поворота
-
-
-
-
-         //  проверка строк матрицы на выигрыш
-
-
-         for (int i=0;i<7;i++){
-             for (int j=0;j<6;j++)
-             {
-                 if (game_table[i][j]==sign &  game_table[i][j]==game_table[i][j+1]) win=true;
-                 else {
-                     win = false;
-                     break;
-                 }
-             }
-             if (win) return win;
-         }
-
-
-         // конец проверки строк на выигрыш
-
-         //  проверка столбцов матрицы на выигрыш
-
-
-         for (int j=0;j<7;j++){
-             for (int i=0;i<6;i++)
-             {
-                 if (game_table[i][j]==sign &  game_table[i][j]==game_table[i+1][j]) win=true;
-                 else {
-                     win = false;
-                     break;
-                 }
-             }
-             if (win) return win;
-         }
-
-         // конец проверки столбцов на выигрыш
-
-         // приведение первоначальной матрицы к проверяемому виду
-         for (int k=0;k<game_table.length;k++)
-         {
-             for (int i=0;i<game_table.length-1;i++)
-             {
-
-                 //    if (i<game_table[i].length-1)
-                 for (int j=0;j<7;j++)
-                 {
-
-
-                     //       if ((j>0) )  if (game_table[i][j]==sign &  game_table[i][j]==game_table[i+1][j-1]) game_table[i][j-1]=game_table[i+1][j-1];
-                     //    if (j<7)    if (game_table[i][j]==sign &   game_table[i][j]==game_table[i+1][j+1]) game_table[i][j+1]=game_table[i+1][j+1];
-                     if ((j>0 & (j<6)) ) {
-                         if (game_table[i][j] == sign & game_table[i][j] == game_table[i + 1][j - 1])
-                             game_table[i][j - 1] = game_table[i + 1][j - 1];
-
-                         if (game_table[i][j] == sign & game_table[i][j] == game_table[i + 1][j + 1])
-                             game_table[i][j + 1] = game_table[i + 1][j + 1];
-                     }
-
-                     if (j==0)
-                         if (game_table[i][j] == sign & game_table[i][j] == game_table[i + 1][j + 1])
-                             game_table[i][j + 1] = game_table[i + 1][j + 1];
-                     if (j==6)
-                         if (game_table[i][j] == sign & game_table[i][j] == game_table[i + 1][j - 1])
-                             game_table[i][j - 1] = game_table[i + 1][j - 1];
-                 }
-             }
-         }
-// конец приведения матрицы к проверямому виду
-
-
-
-//  проверка строк измененной матрицы на выигрыш
-         for (int i=0;i<6;i++){
-             for (int j=0;j<6;j++)
-             {
-                 if (game_table[i][j]==sign &  game_table[i][j]==game_table[i][j+1]) win=true;
-                 else {
-                     win = false;
-                     break;
-                 }
-             }
-             if (win) return win;
-         }
-         // конец проверки строк на выигрыш
-
-
-
-         // приведение повернутой матрицы к проверяемому виду
-         for (int k=0;k<game_table_turned.length;k++)
-         {
-             for (int i=0;i<game_table_turned.length-1;i++)
-             {
-
-                 for (int j=0;j<7;j++)
-                 {
-
-
-                     //       if ((j>0) )  if (game_table[i][j]==sign &  game_table[i][j]==game_table[i+1][j-1]) game_table[i][j-1]=game_table[i+1][j-1];
-                     //    if (j<7)    if (game_table[i][j]==sign &   game_table[i][j]==game_table[i+1][j+1]) game_table[i][j+1]=game_table[i+1][j+1];
-                     if ((j>0 & (j<6)) ) {
-                         if (game_table_turned[i][j] == sign & game_table_turned[i][j] == game_table_turned[i + 1][j - 1])
-                             game_table_turned[i][j - 1] = game_table_turned[i + 1][j - 1];
-
-                         if (game_table_turned[i][j] == sign & game_table_turned[i][j] == game_table_turned[i + 1][j + 1])
-                             game_table_turned[i][j + 1] = game_table_turned[i + 1][j + 1];
-                     }
-
-                     if (j==0)
-                         if (game_table_turned[i][j] == sign & game_table_turned[i][j] == game_table_turned[i + 1][j + 1])
-                             game_table_turned[i][j + 1] = game_table_turned[i + 1][j + 1];
-                     if (j==6)
-                         if (game_table_turned[i][j] == sign & game_table_turned[i][j] == game_table_turned[i + 1][j - 1])
-                             game_table_turned[i][j - 1] = game_table_turned[i + 1][j - 1];
-                 }
-
-
-
-             }
-         }
-
-         // конец приведения матрицы к проверямому виду
-
-
-         //  проверка строк измененной повернутой матрицы на выигрыш
-
-         for (int i=0;i<6;i++){
-             for (int j=0;j<6;j++)
-             {
-                 if (game_table_turned[i][j]==sign &  game_table_turned[i][j]==game_table_turned[i][j+1]) win=true;
-                 else {
-                     win = false;
-                     break;
-                 }
-             }
-             if (win) return win;
-         }
-         // конец проверки строк на выигрыш
-
-
-
-
-
-         return win;
-
-
-    }
 
 
 
