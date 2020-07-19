@@ -7,7 +7,6 @@ public class GameLogic {
         boolean win=false;
 
 
-
         //создание копии матрицы для последующего поворота
 
         char [][] game_table_to_turn = new char [7][7];
@@ -34,8 +33,6 @@ public class GameLogic {
         }
 
         //конец поворота
-
-
 
 
         //  проверка строк матрицы на выигрыш
@@ -83,7 +80,6 @@ public class GameLogic {
                 for (int j=0;j<7;j++)
                 {
 
-
                     //       if ((j>0) )  if (game_table[i][j]==sign &  game_table[i][j]==game_table[i+1][j-1]) game_table[i][j-1]=game_table[i+1][j-1];
                     //    if (j<7)    if (game_table[i][j]==sign &   game_table[i][j]==game_table[i+1][j+1]) game_table[i][j+1]=game_table[i+1][j+1];
                     if ((j>0 & (j<6)) ) {
@@ -106,7 +102,6 @@ public class GameLogic {
 // конец приведения матрицы к проверямому виду
 
 
-
 //  проверка строк измененной матрицы на выигрыш
         for (int i=0;i<6;i++){
             for (int j=0;j<6;j++)
@@ -120,7 +115,6 @@ public class GameLogic {
             if (win) return win;
         }
         // конец проверки строк на выигрыш
-
 
 
         // приведение повернутой матрицы к проверяемому виду
@@ -151,8 +145,6 @@ public class GameLogic {
                             game_table_turned[i][j - 1] = game_table_turned[i + 1][j - 1];
                 }
 
-
-
             }
         }
 
@@ -174,12 +166,11 @@ public class GameLogic {
         }
         // конец проверки строк на выигрыш
 
-
-
-
-
         return win;
 
-
     }
+
+
+
+
 }

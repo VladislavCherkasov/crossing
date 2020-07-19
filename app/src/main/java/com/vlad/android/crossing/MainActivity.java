@@ -29,13 +29,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
    private GridLayout GameLayout;
 
- private Button button;
- private Button new_game_button;
-  private ArrayList<Button> game_field_buttons;
- private    DisplayMetrics metrics ;
-  private   int width ;
+   private Button button;
+   private Button new_game_button;
+   private ArrayList<Button> game_field_buttons;
+   private    DisplayMetrics metrics ;
+   private   int width ;
    private char [][] game_table;
- private boolean game_won;
+   private boolean game_won;
+   private boolean computer_first_move_made;
 
 
 
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
        setRequestedOrientation (ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
         game_won=false;
+        computer_first_move_made=false;
         game_table = new char[7][7];
         user_pressed_buttons_IDs = new ArrayList<>();
         computer_pressed_buttons_IDs = new ArrayList<>();
@@ -175,7 +177,9 @@ for (Button b: game_field_buttons) {
 
             }
 
+if (!computer_first_move_made) computer_first_move_made=computerFirstMove();
 
+else
         if   (!checkIfGameOver() & !game_won)
             computerMove();
         }
@@ -202,6 +206,7 @@ for (Button b: game_field_buttons) {
         game_won=false;
         user_pressed_buttons_IDs.clear();
         computer_pressed_buttons_IDs.clear();
+        computer_first_move_made=false;
 
         for (int i=0;i<7;i++)
             for (int j=0;j<7;j++) game_table[i][j]='1'; //инициализация игровой таблицы
@@ -267,6 +272,63 @@ for (Button b: game_field_buttons) {
 
 
     }
+
+    private boolean computerFirstMove(){
+
+        Button button;
+        int button_ID=0;
+        int choose_a_point;
+
+        int choose_a_side = (int) Math.round(Math.random() * 3);
+
+        switch (choose_a_side) {
+
+            case 0:
+                while (true) {
+
+                    choose_a_point = (int) Math.round(Math.random() * 6);
+                    if (game_table[0][choose_a_point]=='1') {game_table[0][choose_a_point]='O';button_ID=choose_a_point;break;}
+                }
+                break;
+
+            case 1:
+                while (true) {
+
+                    choose_a_point = (int) Math.round(Math.random() * 6);
+                    if (game_table[choose_a_point][6]=='1') {game_table[choose_a_point][6]='O';button_ID=7*choose_a_point+6;break;}
+                }
+                break;
+
+            case 2:
+                while (true) {
+
+                    choose_a_point = (int) Math.round(Math.random() * 6);
+                    if (game_table[6][choose_a_point]=='1') {game_table[6][choose_a_point]='O';button_ID=42+choose_a_point;break;}
+                }
+                break;
+
+            case 3:
+                while (true) {
+
+                    choose_a_point = (int) Math.round(Math.random() * 6);
+                    if (game_table[choose_a_point][0]=='1') {game_table[choose_a_point][0]='O';button_ID=7*choose_a_point;break;}
+                }
+                break;
+        }
+        computer_pressed_buttons_IDs.add(button_ID);
+        button = findViewById(button_ID);
+        if(button!=null) {
+            button.setText("O");
+            gd_computer_move.setColor(getResources().getColor(R.color.green));
+
+            gd_computer_move.setStroke(1, 0xFF000000);
+            button.setBackground(gd_computer_move);
+
+        }
+
+        return true;
+    }
+
 
     private void computerMove() {
         Button button;
