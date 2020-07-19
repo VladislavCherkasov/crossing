@@ -2,9 +2,18 @@ package com.vlad.android.crossing;
 
 public class GameLogic {
 
-   static protected boolean winTest (char [][] game_table, char sign){
+   static protected boolean winTest (char [][] game_table_input, char sign){
 
         boolean win=false;
+       char [][] game_table = new char [7][7];
+
+       for (int i=0;i<7;i++){
+           for (int j=0;j<7;j++)
+           {
+
+               game_table[i][j]=game_table_input[i][j];
+           }
+       }
 
 
         //создание копии матрицы для последующего поворота

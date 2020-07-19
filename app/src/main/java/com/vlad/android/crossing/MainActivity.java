@@ -37,6 +37,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
    private char [][] game_table;
    private boolean game_won;
    private boolean computer_first_move_made;
+   private Direction direction;
+   private int last_computer_move_button_ID;
 
 
 
@@ -57,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         user_pressed_buttons_IDs = new ArrayList<>();
         computer_pressed_buttons_IDs = new ArrayList<>();
         game_field_buttons=new ArrayList<>();
+
 
         if (savedInstanceState != null) {
             game_table = (char[][]) savedInstanceState.getSerializable(GAME_TABLE_INDEX);
@@ -285,38 +288,54 @@ else
 
             case 0:
                 while (true) {
-
                     choose_a_point = (int) Math.round(Math.random() * 6);
-                    if (game_table[0][choose_a_point]=='1') {game_table[0][choose_a_point]='O';button_ID=choose_a_point;break;}
+                    if (game_table[0][choose_a_point]=='1') {
+                        game_table[0][choose_a_point]='O';
+                        button_ID=choose_a_point;
+                        direction=Direction.DOWN;
+                        break;
+                    }
                 }
                 break;
 
             case 1:
                 while (true) {
-
                     choose_a_point = (int) Math.round(Math.random() * 6);
-                    if (game_table[choose_a_point][6]=='1') {game_table[choose_a_point][6]='O';button_ID=7*choose_a_point+6;break;}
+                    if (game_table[choose_a_point][6]=='1') {
+                        game_table[choose_a_point][6]='O';
+                        button_ID=7*choose_a_point+6;
+                        direction=Direction.LEFT;
+                        break;
+                    }
                 }
                 break;
 
             case 2:
                 while (true) {
-
                     choose_a_point = (int) Math.round(Math.random() * 6);
-                    if (game_table[6][choose_a_point]=='1') {game_table[6][choose_a_point]='O';button_ID=42+choose_a_point;break;}
+                    if (game_table[6][choose_a_point]=='1') {
+                        game_table[6][choose_a_point]='O';
+                        button_ID=42+choose_a_point;
+                        direction=Direction.UP;
+                        break;
+                    }
                 }
                 break;
 
             case 3:
                 while (true) {
-
                     choose_a_point = (int) Math.round(Math.random() * 6);
-                    if (game_table[choose_a_point][0]=='1') {game_table[choose_a_point][0]='O';button_ID=7*choose_a_point;break;}
+                    if (game_table[choose_a_point][0]=='1') {
+                        game_table[choose_a_point][0]='O';
+                        button_ID=7*choose_a_point;
+                        direction=Direction.RIGHT;
+                        break;}
                 }
                 break;
         }
         computer_pressed_buttons_IDs.add(button_ID);
         button = findViewById(button_ID);
+        last_computer_move_button_ID=button_ID;
         if(button!=null) {
             button.setText("O");
             gd_computer_move.setColor(getResources().getColor(R.color.green));
@@ -329,7 +348,7 @@ else
         return true;
     }
 
-
+/* //рандомный вариант
     private void computerMove() {
         Button button;
       while (true) {
@@ -337,6 +356,7 @@ else
         if (!user_pressed_buttons_IDs.contains(i) & !computer_pressed_buttons_IDs.contains(i)) {
             computer_pressed_buttons_IDs.add(i);
             button = findViewById(i);
+            last_computer_move_button_ID=i;
             if(button!=null) {
                 button.setText("O");
                 gd_computer_move.setColor(getResources().getColor(R.color.green));
@@ -348,24 +368,110 @@ else
             break;
         }
     }
+
       if (GameLogic.winTest(game_table,'O')) Toast.makeText(MainActivity.this,R.string.You_lost_message,Toast.LENGTH_SHORT).show();
       checkIfGameOver();
     }
+*/
+
+    private void computerMove() {
+        Button button;
+        int i=0;
+             if (direction==Direction.DOWN)   i = moveDown();
+             if (direction==Direction.UP)   i = moveUp();
+             if (direction==Direction.LEFT)   i = moveLeft();
+             if (direction==Direction.RIGHT)   i = moveRight();
+
+
+                computer_pressed_buttons_IDs.add(i);
+                button = findViewById(i);
+                last_computer_move_button_ID=i;
+                if(button!=null) {
+                    button.setText("O");
+                    gd_computer_move.setColor(getResources().getColor(R.color.green));
+
+                    gd_computer_move.setStroke(1, 0xFF000000);
+                    button.setBackground(gd_computer_move);
+                    game_table[i/7][i%7]='O'; // заполнение игровой таблицы
+                }
+
+
+
+
+        if (GameLogic.winTest(game_table,'O')) {
+            Toast toast = Toast.makeText(MainActivity.this, R.string.You_lost_message, Toast.LENGTH_SHORT);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+            for (Button b: game_field_buttons) {
+
+                b.setEnabled(false);
+            }
+        }
+        checkIfGameOver();
+    }
+
 
 private boolean checkIfGameOver() {
         if ((user_pressed_buttons_IDs.size()+computer_pressed_buttons_IDs.size())==49) {
             Toast toast = Toast.makeText(MainActivity.this,R.string.Game_over_message,Toast.LENGTH_SHORT);
-
+            toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
+            for (Button b: game_field_buttons) {
+                b.setEnabled(false);
+            }
             return true;
 
         }
         else return false;
 }
 
+private int moveDown(){
+    game_table[((int)last_computer_move_button_ID/7)+1][((int)last_computer_move_button_ID%7)]='O'; // заполнение игровой таблицы
+    int button_ID=last_computer_move_button_ID+7;
+    return button_ID;
+}
 
+    private int moveUp(){
+        game_table[((int)last_computer_move_button_ID/7)-1][((int)last_computer_move_button_ID%7)]='O'; // заполнение игровой таблицы
+        int button_ID=last_computer_move_button_ID-7;
+        return button_ID;
+    }
 
+    private int moveRight() {
+        game_table[((int) last_computer_move_button_ID/7)][((int) last_computer_move_button_ID%7+1)] = 'O'; // заполнение игровой таблицы
+        int button_ID = last_computer_move_button_ID+1;
+        return button_ID;
+    }
 
+    private int moveLeft() {
+        game_table[((int) last_computer_move_button_ID/7)][((int) last_computer_move_button_ID%7-1)] = 'O'; // заполнение игровой таблицы
+        int button_ID = last_computer_move_button_ID-1;
+        return button_ID;
+    }
+
+    private int moveRightandUp(){
+        game_table[((int)last_computer_move_button_ID/7)-1][((int)last_computer_move_button_ID%7+1)]='O'; // заполнение игровой таблицы
+        int button_ID=last_computer_move_button_ID-6;
+        return button_ID;
+    }
+
+    private int moveRightandDown(){
+        game_table[((int)last_computer_move_button_ID/7)+1][((int)last_computer_move_button_ID%7+1)]='O'; // заполнение игровой таблицы
+        int button_ID=last_computer_move_button_ID+8;
+        return button_ID;
+    }
+
+    private int moveLeftandUp() {
+        game_table[((int) last_computer_move_button_ID/7)-1][((int) last_computer_move_button_ID%7-1)] = 'O'; // заполнение игровой таблицы
+        int button_ID = last_computer_move_button_ID-8;
+        return button_ID;
+    }
+
+    private int moveLeftandDown() {
+        game_table[((int) last_computer_move_button_ID/7)+1][((int) last_computer_move_button_ID%7-1)] = 'O'; // заполнение игровой таблицы
+        int button_ID = last_computer_move_button_ID+6;
+        return button_ID;
+    }
 
 
 }
