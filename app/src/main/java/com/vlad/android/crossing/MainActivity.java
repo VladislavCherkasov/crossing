@@ -34,7 +34,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
    private ArrayList<Button> game_field_buttons;
    private    DisplayMetrics metrics ;
    private   int width ;
-   private char [][] game_table;
+
+    public char[][] getGame_table() {
+        return game_table;
+    }
+
+    private char [][] game_table;
    private boolean game_won;
    private boolean computer_first_move_made;
    private Direction direction;
@@ -155,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
        // if (v==new_game_button) start_Again();
       //  game_won=false;
 if(!user_pressed_buttons_IDs.contains(v.getId()) & !computer_pressed_buttons_IDs.contains(v.getId()) & !game_won) {
-    ((Button) v).setText("X");
+ //   ((Button) v).setText("X");         //надпись на кнопке
     gd_pressed.setColor(getResources().getColor(R.color.dark_red));
 
     gd_pressed.setStroke(1, 0xFF000000);
@@ -167,8 +172,10 @@ if(!user_pressed_buttons_IDs.contains(v.getId()) & !computer_pressed_buttons_IDs
              //int a= (v.getId());
           //  Toast toast = Toast.makeText(MainActivity.this,String.valueOf(a),Toast.LENGTH_SHORT);
          //   toast.show();
+          //  GameLogic tester = new GameLogic(game_table,'X');
 
-     game_won = GameLogic.winTest(game_table,'X');
+            GameLogic tester = new GameLogic(game_table,'X');
+     game_won = tester.winTest();
             if (game_won) {
                Toast toast = Toast.makeText(MainActivity.this, R.string.You_won_message, Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.CENTER, 0, 0);
@@ -185,7 +192,8 @@ if (!computer_first_move_made) computer_first_move_made=computerFirstMove();
 else
         if   (!checkIfGameOver() & !game_won)
             computerMove();
-        }
+     //
+      }
 
 
     @Override
@@ -337,7 +345,7 @@ else
         button = findViewById(button_ID);
         last_computer_move_button_ID=button_ID;
         if(button!=null) {
-            button.setText("O");
+         //   button.setText("O"); //надпись на кнопке
             gd_computer_move.setColor(getResources().getColor(R.color.green));
 
             gd_computer_move.setStroke(1, 0xFF000000);
@@ -390,7 +398,7 @@ else
                 button = findViewById(i);
                 last_computer_move_button_ID=i;
                 if(button!=null) {
-                    button.setText("O");
+              //      button.setText("O");   //надпись на кнопке
                     gd_computer_move.setColor(getResources().getColor(R.color.green));
 
                     gd_computer_move.setStroke(1, 0xFF000000);
@@ -401,7 +409,7 @@ else
 
 
 
-        if (GameLogic.winTest(game_table,'O')) {
+        if (new GameLogic(game_table,'O').winTest()) {
             Toast toast = Toast.makeText(MainActivity.this, R.string.You_lost_message, Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
@@ -680,5 +688,9 @@ private int moveDown(){
 
         return 7;
     }
+
+
+
+
 
 }
