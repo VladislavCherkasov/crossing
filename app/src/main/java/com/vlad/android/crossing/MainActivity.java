@@ -49,8 +49,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     ArrayList<Integer> user_pressed_buttons_IDs;
     ArrayList<Integer> computer_pressed_buttons_IDs;
+    ArrayList<Integer> pit_IDs;
     GradientDrawable gd = new GradientDrawable();
     GradientDrawable gd_pressed = new GradientDrawable();
+    GradientDrawable gd_pit = new GradientDrawable();
     GradientDrawable gd_computer_move = new GradientDrawable();
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -63,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         game_table = new char[7][7];
         user_pressed_buttons_IDs = new ArrayList<>();
         computer_pressed_buttons_IDs = new ArrayList<>();
+        pit_IDs = new ArrayList<>();
         game_field_buttons=new ArrayList<>();
 
 
@@ -85,6 +88,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         gd.setColor(getResources().getColor(R.color.dark_blue));
         gd.setStroke(1, 0xFF000000);
+        gd_pit.setColor(getResources().getColor(R.color.black));
 
 
 
@@ -98,7 +102,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         for (int i=0;i<7;i++)
             for (int j=0;j<7;j++) game_table[i][j]='1'; //инициализация игровой таблицы
 
+for (int i = 0;i<3;i++) {//добавление ловушек
+    int a =(int) (Math.random()*6);
+    int b = (int) (Math.random()*6);
+    game_table[a][b]='P';
+    pit_IDs.add(a*7+b);
 
+
+}
 
 
         for ( int i=0;i<49;i++)
@@ -122,6 +133,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             button.setBackground(gd);
 
             button.setId(i);
+
+      //      if (pit_IDs.contains(i)) {
+
+      //          button.setText("P");
+      //      }
 
 
 
@@ -161,13 +177,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
       //  game_won=false;
 if(!user_pressed_buttons_IDs.contains(v.getId()) & !computer_pressed_buttons_IDs.contains(v.getId()) & !game_won) {
  //   ((Button) v).setText("X");         //надпись на кнопке
-    gd_pressed.setColor(getResources().getColor(R.color.dark_red));
+if (game_table[((int) v.getId() / 7)][((int) v.getId() % 7)] != 'P')
+    {
+        gd_pressed.setColor(getResources().getColor(R.color.dark_red));
 
-    gd_pressed.setStroke(1, 0xFF000000);
-    ((Button) v).setBackground(gd_pressed);
+        gd_pressed.setStroke(1, 0xFF000000);
+        ((Button) v).setBackground(gd_pressed);
 
+        user_pressed_buttons_IDs.add(v.getId());
+        game_table[((int) v.getId() / 7)][((int) v.getId() % 7)] = 'X'; // заполнение игровой таблицы
+    }
+else {
     user_pressed_buttons_IDs.add(v.getId());
-    game_table[((int)v.getId()/7)][((int)v.getId()%7)]='X'; // заполнение игровой таблицы
+
+    ((Button) v).setBackground(gd_pit);
+
+}
 }
              //int a= (v.getId());
           //  Toast toast = Toast.makeText(MainActivity.this,String.valueOf(a),Toast.LENGTH_SHORT);
@@ -218,9 +243,17 @@ else
         user_pressed_buttons_IDs.clear();
         computer_pressed_buttons_IDs.clear();
         computer_first_move_made=false;
+        pit_IDs.clear();
 
         for (int i=0;i<7;i++)
             for (int j=0;j<7;j++) game_table[i][j]='1'; //инициализация игровой таблицы
+
+        for (int i = 0;i<3;i++) {//добавление ловушек
+            int a = (int) (Math.random() * 6);
+            int b = (int) (Math.random() * 6);
+            game_table[a][b] = 'P';
+            pit_IDs.add(a * 7 + b);
+        }
 
         setContentView(R.layout.activity_main);
 
@@ -249,6 +282,10 @@ else
             button.setBackground(gd);
 
             button.setId(i);
+
+         //   if (pit_IDs.contains(i)) {
+         //       button.setText("P");
+         //   }
 
 
             GridLayout.LayoutParams param = new GridLayout.LayoutParams();
@@ -442,7 +479,8 @@ private int moveDown(){
     for (int i=42;i<48;i++) last_line_buttons_iDs.add(i);
     if (last_line_buttons_iDs.contains(last_computer_move_button_ID)) return last_computer_move_button_ID;
 
-        if (game_table[((int)last_computer_move_button_ID/7)+1][((int)last_computer_move_button_ID%7)]!='X') {
+        if (game_table[((int)last_computer_move_button_ID/7)+1][((int)last_computer_move_button_ID%7)]!='X'
+        & game_table[((int)last_computer_move_button_ID/7)+1][((int)last_computer_move_button_ID%7)]!='P') {
             game_table[((int) last_computer_move_button_ID / 7) + 1][((int) last_computer_move_button_ID % 7)] = 'O'; // заполнение игровой таблицы
             int button_ID = last_computer_move_button_ID + 7;
             return button_ID;
@@ -466,7 +504,8 @@ private int moveDown(){
         for (int i=0;i<7;i++) first_line_buttons_iDs.add(i);
         if (first_line_buttons_iDs.contains(last_computer_move_button_ID)) return last_computer_move_button_ID;
 
-            if (game_table[((int) last_computer_move_button_ID / 7) - 1][((int) last_computer_move_button_ID % 7)] != 'X') {
+            if (game_table[((int) last_computer_move_button_ID / 7) - 1][((int) last_computer_move_button_ID % 7)] != 'X'
+                    & game_table[((int)last_computer_move_button_ID/7)- 1][((int)last_computer_move_button_ID % 7)]!='P') {
                 game_table[((int) last_computer_move_button_ID / 7) - 1][((int) last_computer_move_button_ID % 7)] = 'O'; // заполнение игровой таблицы
                 int button_ID = last_computer_move_button_ID - 7;
                 return button_ID;
@@ -491,7 +530,8 @@ private int moveDown(){
                 last_computer_move_button_ID==34|last_computer_move_button_ID==41|last_computer_move_button_ID==48)
             return last_computer_move_button_ID; //проверка на конец строки
 
-        if (game_table[((int) last_computer_move_button_ID/7)][((int) last_computer_move_button_ID%7+1)] != 'X') {
+        if (game_table[((int) last_computer_move_button_ID/7)][((int) last_computer_move_button_ID%7+1)] != 'X'
+                & game_table[((int)last_computer_move_button_ID/7)][((int)last_computer_move_button_ID%7+1)]!='P') {
             game_table[((int) last_computer_move_button_ID / 7)][((int) last_computer_move_button_ID % 7 + 1)] = 'O'; // заполнение игровой таблицы
             int button_ID = last_computer_move_button_ID + 1;
             return button_ID;
@@ -517,7 +557,8 @@ private int moveDown(){
                 last_computer_move_button_ID==28|last_computer_move_button_ID==35|last_computer_move_button_ID==42)
             return last_computer_move_button_ID; //проверка на конец строки
 
-        if (game_table[((int) last_computer_move_button_ID/7)][((int) last_computer_move_button_ID%7-1)] != 'X') {
+        if (game_table[((int) last_computer_move_button_ID/7)][((int) last_computer_move_button_ID%7-1)] != 'X'
+                & game_table[((int)last_computer_move_button_ID/7)][((int)last_computer_move_button_ID%7-1)]!='P') {
             game_table[((int) last_computer_move_button_ID / 7)][((int) last_computer_move_button_ID % 7 - 1)] = 'O'; // заполнение игровой таблицы
             int button_ID = last_computer_move_button_ID - 1;
             return button_ID;
@@ -550,7 +591,8 @@ private int moveDown(){
         for (int i=0;i<7;i++) first_line_buttons_iDs.add(i);
         if (first_line_buttons_iDs.contains(last_computer_move_button_ID)) return last_computer_move_button_ID;
 
-        if (game_table[((int)last_computer_move_button_ID/7)-1][((int)last_computer_move_button_ID%7+1)]!='X') {
+        if (game_table[((int)last_computer_move_button_ID/7)-1][((int)last_computer_move_button_ID%7+1)]!='X'
+                & game_table[((int)last_computer_move_button_ID/7)-1][((int)last_computer_move_button_ID%7+1)]!='P') {
             game_table[((int) last_computer_move_button_ID / 7) - 1][((int) last_computer_move_button_ID % 7 + 1)] = 'O'; // заполнение игровой таблицы
             int button_ID = last_computer_move_button_ID - 6;
             return button_ID;
@@ -568,7 +610,8 @@ private int moveDown(){
         for (int i=42;i<48;i++) last_line_buttons_iDs.add(i);
         if (last_line_buttons_iDs.contains(last_computer_move_button_ID)) return last_computer_move_button_ID;
 
-        if (game_table[((int)last_computer_move_button_ID/7)+1][((int)last_computer_move_button_ID%7+1)]!='X') {
+        if (game_table[((int)last_computer_move_button_ID/7)+1][((int)last_computer_move_button_ID%7+1)]!='X'
+                & game_table[((int)last_computer_move_button_ID/7)+1][((int)last_computer_move_button_ID%7+1)]!='P') {
             game_table[((int) last_computer_move_button_ID / 7) + 1][((int) last_computer_move_button_ID % 7 + 1)] = 'O'; // заполнение игровой таблицы
             int button_ID = last_computer_move_button_ID + 8;
             return button_ID;
@@ -586,7 +629,8 @@ private int moveDown(){
         for (int i=0;i<7;i++) first_line_buttons_iDs.add(i);
         if (first_line_buttons_iDs.contains(last_computer_move_button_ID)) return last_computer_move_button_ID;
 
-        if (game_table[((int) last_computer_move_button_ID/7)-1][((int) last_computer_move_button_ID%7-1)] != 'X') {
+        if (game_table[((int) last_computer_move_button_ID/7)-1][((int) last_computer_move_button_ID%7-1)] != 'X'
+                & game_table[((int)last_computer_move_button_ID/7)-1][((int)last_computer_move_button_ID%7-1)]!='P') {
             game_table[((int) last_computer_move_button_ID / 7) - 1][((int) last_computer_move_button_ID % 7 - 1)] = 'O'; // заполнение игровой таблицы
             int button_ID = last_computer_move_button_ID - 8;
             return button_ID;
@@ -605,7 +649,8 @@ private int moveDown(){
         if (last_line_buttons_iDs.contains(last_computer_move_button_ID)) return last_computer_move_button_ID;
 
 
-        if (game_table[((int) last_computer_move_button_ID/7)+1][((int) last_computer_move_button_ID%7-1)] != 'X') {
+        if (game_table[((int) last_computer_move_button_ID/7)+1][((int) last_computer_move_button_ID%7-1)] != 'X'
+                & game_table[((int)last_computer_move_button_ID/7)+1][((int)last_computer_move_button_ID%7-1)]!='P') {
             game_table[((int) last_computer_move_button_ID / 7) + 1][((int) last_computer_move_button_ID % 7 - 1)] = 'O'; // заполнение игровой таблицы
             int button_ID = last_computer_move_button_ID + 6;
             return button_ID;
