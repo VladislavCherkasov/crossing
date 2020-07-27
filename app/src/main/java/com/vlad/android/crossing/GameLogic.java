@@ -37,7 +37,6 @@ public class GameLogic {
             if (row==6) {result=true; return result;}
         }
 
-
         return result;
 
     }
